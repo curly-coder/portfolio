@@ -5,6 +5,7 @@ import ThreeGlobe from "three-globe";
 import { useThree, Canvas, extend } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import countries from "@/data/globe.json";
+
 declare module "@react-three/fiber" {
   interface ThreeElements {
     threeGlobe: Object3DNode<ThreeGlobe, typeof ThreeGlobe>;
@@ -107,18 +108,44 @@ export function Globe({ globeConfig, data }: WorldProps) {
       emissiveIntensity: number;
       shininess: number;
     };
-    globeMaterial.color = new Color(globeConfig.globeColor);
-    globeMaterial.emissive = new Color(globeConfig.emissive);
-    globeMaterial.emissiveIntensity = globeConfig.emissiveIntensity || 0.1;
-    globeMaterial.shininess = globeConfig.shininess || 0.9;
+    globeMaterial.color = new Color(defaultProps.globeColor || "#1d072e");
+    globeMaterial.emissive = new Color(defaultProps.emissive || "#000000");
+    globeMaterial.emissiveIntensity = defaultProps.emissiveIntensity || 0.1;
+    globeMaterial.shininess = defaultProps.shininess || 0.9;
   };
 
   const _buildData = () => {
+    if (!data || data.length === 0) {
+      console.warn("Globe: No data provided");
+      return;
+    }
+
     const arcs = data;
     let points = [];
     for (let i = 0; i < arcs.length; i++) {
       const arc = arcs[i];
+      
+      // Validate arc data
+      if (
+        typeof arc.startLat !== "number" ||
+        typeof arc.startLng !== "number" ||
+        typeof arc.endLat !== "number" ||
+        typeof arc.endLng !== "number" ||
+        isNaN(arc.startLat) ||
+        isNaN(arc.startLng) ||
+        isNaN(arc.endLat) ||
+        isNaN(arc.endLng)
+      ) {
+        console.warn(`Globe: Invalid arc data at index ${i}`, arc);
+        continue;
+      }
+
       const rgb = hexToRgb(arc.color) as { r: number; g: number; b: number };
+      if (!rgb) {
+        console.warn(`Globe: Invalid color at index ${i}:`, arc.color);
+        continue;
+      }
+
       points.push({
         size: defaultProps.pointSize,
         order: arc.order,
@@ -135,7 +162,12 @@ export function Globe({ globeConfig, data }: WorldProps) {
       });
     }
 
-    
+    if (points.length === 0) {
+      console.warn("Globe: No valid points generated");
+      return;
+    }
+
+    // Remove duplicates
     const filteredPoints = points.filter(
       (v, i, a) =>
         a.findIndex((v2) =>
@@ -150,6 +182,11 @@ export function Globe({ globeConfig, data }: WorldProps) {
 
   useEffect(() => {
     if (globeRef.current && globeData) {
+      if (!countries || !countries.features || countries.features.length === 0) {
+        console.error("Globe: countries.features is empty or invalid");
+        return;
+      }
+
       globeRef.current
         .hexPolygonsData(countries.features)
         .hexPolygonResolution(3)
@@ -165,7 +202,10 @@ export function Globe({ globeConfig, data }: WorldProps) {
   }, [globeData]);
 
   const startAnimation = () => {
-    if (!globeRef.current || !globeData) return;
+    if (!globeRef.current || !globeData || !data || data.length === 0) {
+      console.warn("Globe: Cannot start animation - missing data");
+      return;
+    }
 
     globeRef.current
       .arcsData(data)
@@ -177,9 +217,7 @@ export function Globe({ globeConfig, data }: WorldProps) {
       .arcAltitude((e) => {
         return (e as { arcAlt: number }).arcAlt * 1;
       })
-      .arcStroke((e) => {
-        return [0.32, 0.28, 0.3][Math.round(Math.random() * 2)];
-      })
+      .arcStroke(() => 0.3) // Fixed value instead of random
       .arcDashLength(defaultProps.arcLength)
       .arcDashInitialGap((e) => (e as { order: number }).order * 1)
       .arcDashGap(15)
@@ -220,6 +258,33 @@ export function Globe({ globeConfig, data }: WorldProps) {
 
     return () => {
       clearInterval(interval);
+      
+      // Cleanup Three.js resources to prevent Context Lost
+      if (globeRef.current) {
+        try {
+          // Clear all data
+          globeRef.current.arcsData([]);
+          globeRef.current.pointsData([]);
+          globeRef.current.ringsData([]);
+          globeRef.current.hexPolygonsData([]);
+          
+          // Dispose geometries and materials
+          globeRef.current.traverse((object: any) => {
+            if (object.geometry) {
+              object.geometry.dispose();
+            }
+            if (object.material) {
+              if (Array.isArray(object.material)) {
+                object.material.forEach((material: any) => material.dispose());
+              } else {
+                object.material.dispose();
+              }
+            }
+          });
+        } catch (error) {
+          console.warn("Globe cleanup error:", error);
+        }
+      }
     };
   }, [globeRef.current, globeData]);
 
@@ -237,7 +302,29 @@ export function WebGLRendererConfig() {
     gl.setPixelRatio(window.devicePixelRatio);
     gl.setSize(size.width, size.height);
     gl.setClearColor(0xffaaff, 0);
-  }, []);
+
+    // Handle WebGL context lost/restored
+    const canvas = gl.domElement;
+    
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      console.warn("WebGL context lost. Attempting to restore...");
+    };
+    
+    const handleContextRestored = () => {
+      console.log("WebGL context restored");
+      gl.setPixelRatio(window.devicePixelRatio);
+      gl.setSize(size.width, size.height);
+    };
+
+    canvas.addEventListener("webglcontextlost", handleContextLost);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored);
+
+    return () => {
+      canvas.removeEventListener("webglcontextlost", handleContextLost);
+      canvas.removeEventListener("webglcontextrestored", handleContextRestored);
+    };
+  }, [gl, size]);
 
   return null;
 }
@@ -249,17 +336,17 @@ export function World(props: WorldProps) {
   return (
     <Canvas scene={scene} camera={new PerspectiveCamera(50, aspect, 180, 1800)}>
       <WebGLRendererConfig />
-      <ambientLight color={globeConfig.ambientLight} intensity={0.6} />
+      <ambientLight color={globeConfig.ambientLight || "#ffffff"} intensity={0.6} />
       <directionalLight
-        color={globeConfig.directionalLeftLight}
+        color={globeConfig.directionalLeftLight || "#ffffff"}
         position={new Vector3(-400, 100, 400)}
       />
       <directionalLight
-        color={globeConfig.directionalTopLight}
+        color={globeConfig.directionalTopLight || "#ffffff"}
         position={new Vector3(-200, 500, 200)}
       />
       <pointLight
-        color={globeConfig.pointLight}
+        color={globeConfig.pointLight || "#ffffff"}
         position={new Vector3(-200, 500, 200)}
         intensity={0.8}
       />
@@ -279,19 +366,37 @@ export function World(props: WorldProps) {
 }
 
 export function hexToRgb(hex: string) {
+  // Validate input
+  if (!hex || typeof hex !== "string") {
+    console.warn("hexToRgb: Invalid input, using default color");
+    return { r: 6, g: 182, b: 212 }; // Default to #06b6d4
+  }
+
   var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
   hex = hex.replace(shorthandRegex, function (m, r, g, b) {
     return r + r + g + g + b + b;
   });
 
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
+  
+  if (!result) {
+    console.warn(`hexToRgb: Invalid hex color "${hex}", using default`);
+    return { r: 6, g: 182, b: 212 }; // Default to #06b6d4
+  }
+  
+  const rgb = {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16),
+  };
+  
+  // Validate RGB values
+  if (isNaN(rgb.r) || isNaN(rgb.g) || isNaN(rgb.b)) {
+    console.warn(`hexToRgb: NaN in RGB values for "${hex}", using default`);
+    return { r: 6, g: 182, b: 212 };
+  }
+  
+  return rgb;
 }
 
 export function genRandomNumbers(min: number, max: number, count: number) {

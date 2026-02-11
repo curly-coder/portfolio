@@ -1,3 +1,5 @@
+import { link } from "fs";
+
 export const navItems = [
   { name: "About", link: "#about" },
   { name: "Projects", link: "#projects" },
@@ -49,7 +51,7 @@ export const gridItems = [
 
   {
     id: 5,
-    title: "Currently building a JS Animation library",
+    title: "Currently studying a Next.js framework",
     description: "The Inside Scoop",
     className: "md:col-span-3 md:row-span-2",
     imgClassName: "absolute right-0 bottom-0 md:w-96 w-60",
@@ -72,35 +74,35 @@ export const gridItems = [
 export const projects = [
   {
     id: 1,
-    title: "3D Solar System Planets to Explore",
-    des: "Explore the wonders of our solar system with this captivating 3D simulation of the planets using Three.js.",
-    img: "/p1.svg",
-    iconLists: ["/re.svg", "/tail.svg", "/ts.svg", "/three.svg", "/fm.svg"],
-    link: "https://github.com/adrianhajdin?tab=repositories",
+    title: "Animated Apple MacBook 3D Website",
+    des: "Recreated the Apple MacBook website, combining GSAP animations and Three.js 3D effects",
+    img: "/macbook.svg",
+    iconLists: ["/re.svg", "/tail.svg", "/three.svg"],
+    link: "https://macbook-gsap-three.vercel.app/",
   },
   {
     id: 2,
-    title: "Yoom - Video Conferencing App",
-    des: "Simplify your video conferencing experience with Yoom. Seamlessly connect with colleagues and friends.",
-    img: "/p2.svg",
-    iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/stream.svg", "/c.svg"],
-    link: "https://github.com/adrianhajdin/zoom-clone",
+    title: "Aventador Landing Page",
+    des: "Aventador Landing Page - HTML/CSS/JavaScript pet-project with scroll reveal animation",
+    img: "/p4.png",
+    iconLists: ["/css.svg", "/html.webp", "/js.png"],
+    link: "https://curly-coder.github.io/aventador-landing-page/",
   },
   {
     id: 3,
-    title: "AI Image SaaS - Canva Application",
-    des: "A REAL Software-as-a-Service app with AI features and a payments and credits system using the latest tech stack.",
-    img: "/p3.svg",
-    iconLists: ["/re.svg", "/tail.svg", "/ts.svg", "/three.svg", "/c.svg"],
-    link: "https://github.com/adrianhajdin/ai_saas_app",
+    title: "Brainwave",
+    des: "BrainWave Landing Page - built with React and styled using Tailwind CSS.",
+    img: "/3.svg",
+    iconLists: ["/re.svg", "/tail.svg"],
+    link: "https://curly-coder.github.io/brainwave/",
   },
   {
     id: 4,
-    title: "Animated Apple Iphone 3D Website",
-    des: "Recreated the Apple iPhone 15 Pro website, combining GSAP animations and Three.js 3D effects..",
-    img: "/p4.svg",
-    iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/three.svg", "/gsap.svg"],
-    link: "https://github.com/adrianhajdin/iphone",
+    title: "JBL Headphones Website",
+    des: "Headphones website - HTML/CSS/JavaScript pet-project with slider and scroll reveal animation",
+    img: "/2.svg",
+    iconLists: ["/css.svg", "/html.webp", "/js.png"],
+    link: "https://curly-coder.github.io/headphones-website/",
   },
 ];
 
@@ -139,13 +141,16 @@ export const socialMedia = [
   {
     id: 1,
     img: "/git.svg",
+    link: "https://github.com/curly-coder"
   },
   {
     id: 2,
-    img: "/twit.svg",
+    img: "/link.svg",
+    link: "https://www.linkedin.com/in/anastasiia-kumeda-542482164/"
   },
   {
     id: 3,
-    img: "/link.svg",
-  },
+    img: "/telegram.png",
+    link: "https://t.me/anastasia_kumeda"
+  }
 ];

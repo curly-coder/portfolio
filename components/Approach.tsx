@@ -15,9 +15,7 @@ const Approach = () => {
         <Card 
             title="Planning & Strategy" 
             icon={<AceternityIcon order="Phase 1"/>}
-            description="We'll collaborate to map out your website's goals, target audience, 
-            and key functionalities. We'll discuss things like site structure, 
-            navigation, and content requirements."
+            description="We'll collaborate to map out your website's goals, target audience, and key functionalities. We'll discuss things like site structure, navigation, and content requirements."
         >
           <CanvasRevealEffect
             animationSpeed={5.1}
@@ -27,9 +25,7 @@ const Approach = () => {
         <Card 
             title="Development & Progress Update"
             icon={<AceternityIcon order="Phase 2"/>}
-            description="Once we agree on the plan, I cue my lofi playlist and dive into
-            coding. From initial sketches to polished code, I keep you updated
-            every step of the way."
+            description="Once we agree on the plan, I cue my lofi playlist and dive into coding. From initial sketches to polished code, I keep you updated every step of the way."
         >
           <CanvasRevealEffect
             animationSpeed={3}
@@ -45,9 +41,7 @@ const Approach = () => {
         <Card 
             title="Development & Launch"
             icon={<AceternityIcon order="Phase 3"/>}
-            description="This is where the magic happens! Based on the approved design, 
-            I'll translate everything into functional code, building your website
-            from the ground up."
+            description="This is where the magic happens! Based on the approved design, I'll translate everything into functional code, building your website from the ground up."
         >
           <CanvasRevealEffect
             animationSpeed={3}
@@ -96,21 +90,13 @@ const Card = ({
       </AnimatePresence>
  
       <div className="relative z-20 px-10">
-        <div className="text-center group-hover/canvas-card:-translate-y-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] 
-            group-hover/canvas-card:opacity-0 transition duration-200 min-w-40 mx-auto flex items-center justify-center">
+        <div className="text-center group-hover/canvas-card:-translate-y-4 absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] group-hover/canvas-card:opacity-0 transition duration-200 min-w-40 mx-auto flex items-center justify-center">
           {icon}
         </div>
-        <h2 className="dark:text-white text-center text-3xl opacity-0 group-hover/canvas-card:opacity-100
-         relative z-10 text-black mt-4  font-bold group-hover/canvas-card:text-white 
-         group-hover/canvas-card:-translate-y-2 transition duration-200">
+        <h2 className="dark:text-white text-center text-3xl opacity-0 group-hover/canvas-card:opacity-100 relative z-10 text-black mt-4  font-bold group-hover/canvas-card:text-white group-hover/canvas-card:-translate-y-2 transition duration-200">
           {title}
         </h2>
-        <p
-          className="text-sm opacity-0 group-hover/canvas-card:opacity-100
-         relative z-10 mt-4 group-hover/canvas-card:text-white text-center
-         group-hover/canvas-card:-translate-y-2 transition duration-200"
-          style={{ color: "#E4ECFF" }}
-        >
+        <p className="text-sm opacity-0 group-hover/canvas-card:opacity-100 relative z-10 mt-4 group-hover/canvas-card:text-white text-center group-hover/canvas-card:-translate-y-2 transition duration-200" style={{ color: "#E4ECFF" }}>
           {description}
         </p>
       </div>
