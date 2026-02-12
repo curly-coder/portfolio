@@ -1,12 +1,34 @@
 "use client";
-import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 const World = dynamic(() => import("./Globe").then((m) => m.World), {
   ssr: false,
+  loading: () => <div className="h-[400px]" />,
 });
 
 const GridGlobe = () => {
+  const [showWorld, setShowWorld] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mm = window.matchMedia("(max-width: 640px)");
+    const deviceMemory = (navigator as any).deviceMemory || 4;
+
+    const update = () => {
+      const isSmall = mm.matches;
+      // Only show full WebGL world on non-small screens and reasonably capable devices
+      setShowWorld(!isSmall && deviceMemory >= 2);
+    };
+
+    update();
+    if (mm.addEventListener) mm.addEventListener("change", update);
+    else mm.addListener(update);
+    return () => {
+      if (mm.removeEventListener) mm.removeEventListener("change", update);
+      else mm.removeListener(update);
+    };
+  }, []);
   const globeConfig = {
     pointSize: 4,
     globeColor: "#062056",
@@ -398,7 +420,13 @@ const GridGlobe = () => {
       <div className="max-w-7xl mx-auto w-full relative overflow-hidden h-96 px-4">
         <div className="absolute w-full bottom-0 inset-x-0 h-40 bg-gradient-to-b pointer-events-none select-none from-transparent dark:to-black to-white z-40" />
         <div className="absolute w-full h-72 md:h-full z-10">
-          <World data={sampleArcs} globeConfig={globeConfig} />
+          {showWorld ? (
+            <World data={sampleArcs} globeConfig={globeConfig} />
+          ) : (
+            <div className="h-72 w-full flex items-center justify-center text-sm text-[#C1C2D3]">
+              Interactive globe disabled on small or low-memory devices
+            </div>
+          )}
         </div>
       </div>
     </div>

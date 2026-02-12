@@ -141,16 +141,19 @@ export const socialMedia = [
   {
     id: 1,
     img: "/git.svg",
-    link: "https://github.com/curly-coder"
+    link: "https://github.com/curly-coder",
+    name: "git"
   },
   {
     id: 2,
     img: "/link.svg",
-    link: "https://www.linkedin.com/in/anastasiia-kumeda-542482164/"
+    link: "https://www.linkedin.com/in/anastasiia-kumeda-542482164/",
+    name: "linkedin"
   },
   {
     id: 3,
     img: "/telegram.png",
-    link: "https://t.me/anastasia_kumeda"
+    link: "https://t.me/anastasia_kumeda",
+    name: "telegram"
   }
 ];

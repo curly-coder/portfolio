@@ -2,13 +2,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Color, Scene, Fog, PerspectiveCamera, Vector3 } from "three";
 import ThreeGlobe from "three-globe";
-import { useThree, Canvas, extend } from "@react-three/fiber";
+import { useThree, Canvas, extend} from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import countries from "@/data/globe.json";
 
 declare module "@react-three/fiber" {
   interface ThreeElements {
-    threeGlobe: Object3DNode<ThreeGlobe, typeof ThreeGlobe>;
+    threeGlobe: any;
   }
 }
 
@@ -299,7 +299,8 @@ export function WebGLRendererConfig() {
   const { gl, size } = useThree();
 
   useEffect(() => {
-    gl.setPixelRatio(window.devicePixelRatio);
+    const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 1.5) : 1;
+    gl.setPixelRatio(dpr);
     gl.setSize(size.width, size.height);
     gl.setClearColor(0xffaaff, 0);
 
@@ -313,7 +314,8 @@ export function WebGLRendererConfig() {
     
     const handleContextRestored = () => {
       console.log("WebGL context restored");
-      gl.setPixelRatio(window.devicePixelRatio);
+      const dprRestored = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 1.5) : 1;
+      gl.setPixelRatio(dprRestored);
       gl.setSize(size.width, size.height);
     };
 
@@ -330,11 +332,13 @@ export function WebGLRendererConfig() {
 }
 
 export function World(props: WorldProps) {
-  const { globeConfig } = props;
   const scene = new Scene();
   scene.fog = new Fog(0xffffff, 400, 2000);
+  const camera = new PerspectiveCamera(50, aspect, 180, 1800);
+  const { globeConfig } = props;
+
   return (
-    <Canvas scene={scene} camera={new PerspectiveCamera(50, aspect, 180, 1800)}>
+    <Canvas scene={scene} camera={camera}>
       <WebGLRendererConfig />
       <ambientLight color={globeConfig.ambientLight || "#ffffff"} intensity={0.6} />
       <directionalLight
